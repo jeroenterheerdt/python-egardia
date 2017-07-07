@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='python-egardia',
-      version='1.0.2',
+      version='1.0.3',
       description='Python 3 support for Egardia / Woonveilig alarm',
       url='https://github.com/jeroenterheerdt/python-egardia',
       author='Jeroen ter Heerdt',
