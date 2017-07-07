@@ -1,9 +1,9 @@
 setup.py
-python-egardia/__init__.py
-python-egardia/pythonegardia.py
 python_egardia.egg-info/PKG-INFO
 python_egardia.egg-info/SOURCES.txt
 python_egardia.egg-info/dependency_links.txt
 python_egardia.egg-info/requires.txt
 python_egardia.egg-info/top_level.txt
 python_egardia.egg-info/zip-safe
+pythonegardia/__init__.py
+pythonegardia/egardiadevice.py

@@ -19,8 +19,8 @@ class EgardiaDevice(object):
 		return self._status
 
 	def update(self):
-		 """Update the alarm status."""
-                self._status = self.getState()
+	        """Update the alarm status."""
+		self._status = self.getState()
 
 	def getState(self):
 		import requests
