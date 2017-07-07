@@ -5,7 +5,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-class EgardiaDevice(object):
+class Egardia(object):
 
 	def __init__(self,host,port,username,password, state):
 		self._host = host
