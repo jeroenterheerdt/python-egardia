@@ -5,6 +5,12 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+class UnauthorizedError(Exception):
+	def __init__(self,value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
 class EgardiaDevice(object):
 
 	def __init__(self,host,port,username,password, state):
@@ -25,8 +31,14 @@ class EgardiaDevice(object):
 	def getState(self):
 		import requests
 		#Get status
-		r = self.doRequest('get', 'panelCondGet')
+		try:
+                    r = self.doRequest('get', 'panelCondGet')
+                except:
+                    raise
+                    return 'UNKNOWN'
 		statustext = r.text
+		if 'Unauthorized' in statustext:
+			raise UnauthorizedError('Unable to login to system using the credentials provided')
 		ind1 = statustext.find('mode_a1 : "')
 		statustext = statustext[ind1+11:]
 		ind2 = statustext.find('"')
