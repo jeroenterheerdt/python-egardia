@@ -32,10 +32,10 @@ class EgardiaDevice(object):
 		import requests
 		#Get status
 		try:
-                    r = self.doRequest('get', 'panelCondGet')
-                except:
-                    raise
-                    return 'UNKNOWN'
+			r = self.doRequest('get', 'panelCondGet')
+		except:
+			raise
+			return 'UNKNOWN'
 		statustext = r.text
 		if 'Unauthorized' in statustext:
 			raise UnauthorizedError('Unable to login to system using the credentials provided')
