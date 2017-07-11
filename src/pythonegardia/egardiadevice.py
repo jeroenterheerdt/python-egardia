@@ -90,7 +90,11 @@ class EgardiaDevice(object):
         import requests
         #Send payload to panelCondPost
         payload = {'area': '1', 'mode': p}
-        r = self.doRequest('POST', 'panelCondPost', payload)
+	try:
+            r = self.doRequest('POST', 'panelCondPost', payload)
+        except:
+            raise
+            return "UNKNOWN"
         statustext = r.text
         ind1 = statustext.find('result : ')
         statustext = statustext[ind1+9:]
