@@ -29,21 +29,22 @@ class EgardiaDevice(object):
         self.update()
 
     def state(self):
+        """Return _status"""
         return self._status
 
     def update(self):
         """Update the alarm status."""
-        self._status = self.getState()
+        self._status = self.getstate()
 
-    def getState(self):
+    def getstate(self):
+        """Get the status from the alarm panel"""
         import requests
         #Get status
         try:
-            r = self.doRequest('get', 'panelCondGet')
+            req = self.dorequest('get', 'panelCondGet')
         except:
             raise
-            return 'UNKNOWN'
-        statustext = r.text
+        statustext = req.text
         if 'Unauthorized' in statustext:
             raise UnauthorizedError('Unable to login to system using the credentials provided')
         else:
@@ -54,48 +55,50 @@ class EgardiaDevice(object):
             _LOGGER.info("Egardia alarm status: "+status)
             return status.upper()
 
-    def doRequest(self, requestType, action, payload=None):
+    def dorequest(self, requesttype, action, payload=None):
+        """Execute an request against the alarm panel"""
         import requests
-        requestType = requestType.upper()
-        _LOGGER.info("Egardia doRequest, type: "+requestType+", url: "+self.buildURL()+action
+        requesttype = requesttype.upper()
+        _LOGGER.info("Egardia doRequest, type: "+requesttype+", url: "+self.buildurl()+action
                      +", payload: "+str(payload)+", auth=("+self._username+","+self._password+")")
-        if requestType == 'GET':
-            return requests.get(self.buildURL()+action, auth=(self._username, self._password))
-        elif requestType == 'POST':
-            return requests.post(self.buildURL()+action, data=payload,
+        if requesttype == 'GET':
+            return requests.get(self.buildurl()+action, auth=(self._username, self._password))
+        elif requesttype == 'POST':
+            return requests.post(self.buildurl()+action, data=payload,
                                  auth=(self._username, self._password))
         else:
             return None
 
-    def buildURL(self):
+    def buildurl(self):
+        """Build the url from host and port"""
         return 'http://'+self._host+':'+self._port+'/action/'
 
     def alarm_disarm(self, code=None):
         """Send disarm command."""
-        r = self.sendCondition(4)
-        _LOGGER.info("Egardia alarm disarming, result: "+r)
+        req = self.sendcondition(4)
+        _LOGGER.info("Egardia alarm disarming, result: "+req)
 
     def alarm_arm_home(self, code=None):
         """Send arm home command."""
-        r = self.sendCondition(1)
-        _LOGGER.info("Egardia alarm arming home, result: "+r)
+        req = self.sendcondition(1)
+        _LOGGER.info("Egardia alarm arming home, result: "+req)
 
     def alarm_arm_away(self, code=None):
         """Send arm away command."""
         #ARM the alarm
-        r = self.sendCondition(0)
-        _LOGGER.info("Egardia alarm arming away, result: "+r)
+        req = self.sendcondition(0)
+        _LOGGER.info("Egardia alarm arming away, result: "+req)
 
-    def sendCondition(self, p):
+    def sendcondition(self, mode):
+        "Change the condition of the panel"""
         import requests
         #Send payload to panelCondPost
-        payload = {'area': '1', 'mode': p}
-	try:
-            r = self.doRequest('POST', 'panelCondPost', payload)
+        payload = {'area': '1', 'mode': mode}
+        try:
+            req = self.dorequest('POST', 'panelCondPost', payload)
         except:
             raise
-            return "UNKNOWN"
-        statustext = r.text
+        statustext = req.text
         ind1 = statustext.find('result : ')
         statustext = statustext[ind1+9:]
         ind2 = statustext.find(',')
