@@ -71,7 +71,7 @@ class EgardiaDevice(object):
 
     def buildurl(self):
         """Build the url from host and port"""
-        return 'http://'+self._host+':'+self._port+'/action/'
+        return 'http://'+self._host+':'+str(self._port)+'/action/'
 
     def alarm_disarm(self, code=None):
         """Send disarm command."""
