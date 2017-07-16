@@ -2,9 +2,8 @@
 Egardia / Woonveilig server that passes along alarms
 """
 import socket
-import logging
-
-_LOGGER = logging.getLogger(__name__)
+import argparse
+import sys
 
 class EgardiaServer(object):
     """
@@ -14,30 +13,49 @@ class EgardiaServer(object):
         self._port = port
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        listen_socket.bind(('', port))
-        listen_socket.listen(1)
-        _LOGGER.info("EgardiaServer listening on port "+str(port))
+        try:
+            listen_socket.bind(('', port))
+            listen_socket.listen(1)
+        except PermissionError as e:
+            print("Permission error, make sure to run this as root or in sudo mode")
+            sys.exit(2)
+        print("EgardiaServer listening on port "+str(port))
         self._status = ""
         while True:
             client_connection, client_address = listen_socket.accept()
             request = client_connection.recv(1024)
+            
             http_response = """\
 HTTP/1.1 200 OK
 
 Hello, World!
 """
-            client_connection.sendall(http_response.encode('utf8'))
-            client_connection.close()
-    
             #PARSE THE REQUEST
             requestdecoded = request.decode('utf8')
-            if requestdecoded.startswith("["):
+            #print(requestdecoded)
+            if requestdecoded.startswith("GET"):
+                #Return the current status
+                http_response = """\
+HTTP/1.1 200 OK
+
+"""+self._status
+            elif requestdecoded.startswith("["):
+                #Handle Egardia status and store it for future retrieval
                 newstatus = requestdecoded[requestdecoded.index(' ')+1:]
                 newstatus = newstatus[:len(newstatus)-1]
                 if newstatus != self._status:
                     self._status = newstatus
+	           
+            #print(http_response)
+            client_connection.sendall(http_response.encode('utf8'))
+            client_connection.close()
 
-    def state(self):
-        """Return _status"""
-        return self._status
+def main(argv):
+    parser = argparse.ArgumentParser(description = 'Run the EgardiaServer')
+    parser.add_argument('-port',help='the port number to run the server on (defaults to 85)', default='85')
+    args = parser.parse_args()
+    port = args.port
+    es = EgardiaServer(int(port))
 
+if __name__=="__main__":
+    main(sys.argv[1:])

@@ -60,12 +60,13 @@ class EgardiaDevice(object):
         import requests
         requesttype = requesttype.upper()
         _LOGGER.info("Egardia doRequest, type: "+requesttype+", url: "+self.buildurl()+action
-                     +", payload: "+str(payload)+", auth=("+self._username+","+self._password+")")
+                     +", payload: "+str(payload)+", auth=("+self._username+",****)")
         if requesttype == 'GET':
-            return requests.get(self.buildurl()+action, auth=(self._username, self._password))
+            return requests.get(self.buildurl()+action,
+                                auth=(self._username, self._password), timeout=5)
         elif requesttype == 'POST':
             return requests.post(self.buildurl()+action, data=payload,
-                                 auth=(self._username, self._password))
+                                 auth=(self._username, self._password), timeout=5)
         else:
             return None
 
