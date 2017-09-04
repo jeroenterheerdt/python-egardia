@@ -7,6 +7,7 @@ import sys
 import logging
 import datetime
 import homeassistant.remote as remote
+import time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,16 +16,32 @@ class EgardiaServer(object):
     """
     Egardia server passing along alarms
     """
-    def __init__(self, port, hasshost, password, haport, ssl):
+    def __init__(self, port, hasshost, password, haport, ssl, retrycount, waittime):
         self._port = port
         self._hasshost = hasshost
         self._password = password
         self._haport = haport
         self._ssl = ssl
+        self._retrycount = retrycount
+        self._waittime = waittime
+        msg = "Sleeping to give Home Assistant a moment to start"
+        _LOGGER.info(msg)
+        print(msg)
+        time.sleep(waittime)
         try:
-            self._api = remote.API(self._hasshost, self._password,
-                               self._haport,self._ssl)
-            validationresult = str(remote.validate_api(self._api))
+            validationresult = "init"
+            numretries = 0
+            while validationresult != "ok" and numretries <= self._retrycount:
+                self._api = remote.API(self._hasshost, self._password,
+                                       self._haport,self._ssl)
+                validationresult = str(remote.validate_api(self._api))
+                numretries = numretries+1
+                if validationresult != "ok":
+                   msg = "Connecting to Home Assistant failed, "
+                   msg = msg + "retrying..."
+                   _LOGGER.info(msg)
+                   print(msg)
+                   time.sleep(5)
             if validationresult != "ok":
                msg = "Error connection to Home Assistant: "
                msg = msg + validationresult
@@ -36,8 +53,9 @@ class EgardiaServer(object):
                print(msg)
                _LOGGER.info(msg)
         except:
-            msg = "Error connecting to Home Assistant"
-            msg = msg + ", please check settings."
+            e = sys.exc_info()[0]
+            msg = "Error connecting to Home Assistant: "
+            msg = msg + e+", please check settings."
             print(msg)
             _LOGGER.error(msg)
             sys.exit(2)
@@ -80,11 +98,18 @@ Hello, World!
                         remote.fire_event(self._api,
                                           'egardia_system_status',
                                           data=payload)
+                        msg = "egardia_system_status event fired with payload: "
+                        msg = msg + str(payload)
+                        _LOGGER.info(msg)
+                        print(msg)
                     except:
-                        msg = "Could not fire event, is your ",
-                        "HASS server running?"
+                        e = sys.exc_info()[0]
+                        msg = "Could not fire event, is your "
+                        msg = msg +"HASS server running?"
                         _LOGGER.error(msg)
                         print(msg)
+                        _LOGGER.error(e)
+                        print(e)
             client_connection.sendall(http_response.encode('utf8'))
             client_connection.close()
 
@@ -104,13 +129,24 @@ def main(argv):
     parser.add_argument('-ssl', help='connect to Home Assistant through '+
                         'a secure channel (defaults to False)',
                         default='False')
+    parser.add_argument('-numretry', help='maximum number of retries '+
+                        'connecting to Home Assistant (defaults to 10)',
+                        default='10')
+    parser.add_argument('-waittime',help='number of seconds to wait '+
+                        'before connection to Home Assistant for the '+
+                        'first time to give Home Assistant time to '+
+                        'start (defaults to 120)',
+                        default='120')
     args = parser.parse_args()
     port = args.port
     host = args.host
     password = args.password
     haport = args.haport
     ssl = args.ssl
-    EgardiaServer(int(port), host, password, int(haport), bool(ssl))
+    retrycount = args.numretry
+    waittime = args.waittime
+    EgardiaServer(int(port), host, password, int(haport), bool(ssl),
+                  int(retrycount),int(waittime))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
