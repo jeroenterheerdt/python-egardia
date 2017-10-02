@@ -55,7 +55,7 @@ class EgardiaServer(object):
         except:
             e = sys.exc_info()[0]
             msg = "Error connecting to Home Assistant: "
-            msg = msg + e+", please check settings."
+            msg = msg + str(e)+", please check settings."
             print(msg)
             _LOGGER.error(msg)
             sys.exit(2)
@@ -108,8 +108,8 @@ Hello, World!
                         msg = msg +"HASS server running?"
                         _LOGGER.error(msg)
                         print(msg)
-                        _LOGGER.error(e)
-                        print(e)
+                        _LOGGER.error(str(e))
+                        print(str(e))
             client_connection.sendall(http_response.encode('utf8'))
             client_connection.close()
 
