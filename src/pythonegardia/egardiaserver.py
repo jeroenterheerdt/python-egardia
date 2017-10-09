@@ -128,7 +128,7 @@ def main(argv):
                         default='8123')
     parser.add_argument('-ssl', help='connect to Home Assistant through '+
                         'a secure channel (defaults to False)',
-                        default='False')
+                        default=False)
     parser.add_argument('-numretry', help='maximum number of retries '+
                         'connecting to Home Assistant (defaults to 10)',
                         default='10')
