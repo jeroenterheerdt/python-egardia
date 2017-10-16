@@ -1,5 +1,5 @@
 # python-egardia
-Python library to interface with Egardia / Woonveilig alarm. Tested with GATE-01 version of Egardia / Woonveilig. Other versions might work, but unsure.
+Python library to interface with Egardia / Woonveilig alarm. Tested with GATE-01 version of Egardia / Woonveilig. Other versions might work, but unsure. Includes components to work with Home Assistant (see below) as well as generic interfaces.
 
 ```bash
 usage: egardiaserver.py [-h] [-port PORT] [-host HOST] [-password PASSWORD]
