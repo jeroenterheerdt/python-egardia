@@ -5,6 +5,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad"]
 
 class UnauthorizedError(Exception):
     """
@@ -26,6 +27,7 @@ class EgardiaDevice(object):
         self._username = username
         self._password = password
         self._status = state
+        self._sensors = self.getsensors()
         self.update()
 
     def state(self):
@@ -54,6 +56,33 @@ class EgardiaDevice(object):
             status = statustext[:ind2]
             _LOGGER.info("Egardia alarm status: "+status)
             return status.upper()
+
+    def getsensors(self):
+        """Get the sensors and their states from the alarm panel"""
+        import requests
+        try:
+            req = self.dorequest('get', 'sensorListGet')
+        except:
+            raise
+        sensors = req.text
+        if 'Unauthorized' in sensors:
+            raise UnauthorizedError('Unable to login to system using the credentials provided')
+        else:
+            sensord = self.parseJson(sensors)
+            sensors = {}
+            
+            for sensor in sensord["senrows"]:
+                if sensor["type"] not in SENSOR_TYPES_TO_IGNORE:
+                    sensors[sensor["no"]] = sensor
+                    #sensor["no"]
+                    if sensor["type"] == "Door Contact":
+                        #sensor["cond"]== "Open" || ""
+                        k = 1
+                    if sensor["type"] == "IR Sensor":
+                        #sensor[""]!= "" || ""
+                        k = 2
+            return sensors
+
 
     def dorequest(self, requesttype, action, payload=None):
         """Execute an request against the alarm panel"""
@@ -105,3 +134,15 @@ class EgardiaDevice(object):
         ind2 = statustext.find(',')
         statustext = statustext[:ind2]
         return statustext
+
+    def parseJson(self, crappy_json):
+        import json
+        import re
+        crappy_json = crappy_json.replace("/*-secure-","")
+        crappy_json = crappy_json.replace("*/","")
+        crappy_json = crappy_json.replace('{	senrows : [','{"senrows":[')
+        property_names_to_fix = ["no","type","area", "zone", "name", "attr", "cond", "battery", "tamp", "bypass"]
+        for p in property_names_to_fix:
+            crappy_json = crappy_json.replace(p+' :','"'+p+'":')
+        data = json.loads(crappy_json, strict=False)
+        return data
