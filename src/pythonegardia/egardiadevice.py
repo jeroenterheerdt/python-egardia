@@ -138,6 +138,7 @@ class EgardiaDevice(object):
     def parseJson(self, crappy_json):
         import json
         import re
+        print(str(crappy_json))
         crappy_json = crappy_json.replace("/*-secure-","")
         crappy_json = crappy_json.replace("*/","")
         crappy_json = crappy_json.replace('{	senrows : [','{"senrows":[')
