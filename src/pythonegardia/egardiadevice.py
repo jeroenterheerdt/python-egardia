@@ -6,6 +6,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad"]
+SUPPORTED_VERSIONS = ["GATE-01","GATE-02"]
 
 class UnauthorizedError(Exception):
     """
@@ -17,18 +18,32 @@ class UnauthorizedError(Exception):
     def __str__(self):
         return repr(self.value)
 
+class VersionError(Exception):
+    """
+    Version Error
+    """
+    def __init__(self, value):
+        super(self.__class__, self).__init__(value)
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 class EgardiaDevice(object):
     """
     Representation of an Egardia Device
     """
-    def __init__(self, host, port, username, password, state):
+    def __init__(self, host, port, username, password, state, version):
         self._host = host
         self._port = port
         self._username = username
         self._password = password
         self._status = state
-        self._sensors = self.getsensors()
-        self.update()
+        self._version = version.upper()
+        if self._version not in SUPPORTED_VERSIONS:
+            raise VersionError('Egardia device version '+self._version+' is unsupported.')
+        else: 
+            self._sensors = self.getsensors()
+            self.update()
 
     def state(self):
         """Return _status"""
@@ -61,12 +76,19 @@ class EgardiaDevice(object):
         """Get the sensors and their states from the alarm panel"""
         import requests
         try:
-            req = self.dorequest('get', 'sensorListGet')
+            if self._version == "GATE-01":
+                req = self.dorequest('get', 'sensorListGet')
+            elif self._version == "GATE-02":
+                req = self.dorequest('get', 'deviceListGet')
+            else:
+                raise VersionError('Egardia device version '+self._version+' is unsupported.')
         except:
             raise
         sensors = req.text
         if 'Unauthorized' in sensors:
             raise UnauthorizedError('Unable to login to system using the credentials provided')
+        elif 'is not defined' in sensors:
+            raise VersionError('Unable to communicate with the device. Did you configure your version correctly?')
         else:
             sensord = self.parseJson(sensors)
             sensors = {}
@@ -142,7 +164,7 @@ class EgardiaDevice(object):
         crappy_json = crappy_json.replace("/*-secure-","")
         crappy_json = crappy_json.replace("*/","")
         crappy_json = crappy_json.replace('{	senrows : [','{"senrows":[')
-        property_names_to_fix = ["no","type","area", "zone", "name", "attr", "cond", "battery", "tamp", "bypass"]
+        property_names_to_fix = ["no","type","type_f","area", "zone", "name", "attr", "cond", "cond_ok", "battery", "battery_ok", "tamp", "tamper", "tamper_ok", "bypass", "rssi", "status", "id","su"]
         for p in property_names_to_fix:
             crappy_json = crappy_json.replace(p+' :','"'+p+'":')
         data = json.loads(crappy_json, strict=False)
