@@ -92,11 +92,13 @@ class EgardiaDevice(object):
         else:
             sensord = self.parseJson(sensors)
             sensors = {}
-            
+            keyname = "no"
+            if self._version == "GATE-02":
+                keyname = "id"
             for sensor in sensord["senrows"]:
                 if sensor["type"] not in SENSOR_TYPES_TO_IGNORE:
-                    sensors[sensor["no"]] = sensor
-                    #sensor["no"]
+                    sensors[sensor[keyname]] = sensor
+                    #sensor[keyname]
                     if sensor["type"] == "Door Contact":
                         #sensor["cond"]== "Open" || ""
                         k = 1
@@ -104,7 +106,12 @@ class EgardiaDevice(object):
                         #sensor[""]!= "" || ""
                         k = 2
             return sensors
-
+        
+    def getsensor(self, sensorId):
+        if sensorId in self._sensors:
+            return self._sensors[sensorId]
+        else:
+            return None
 
     def dorequest(self, requesttype, action, payload=None):
         """Execute an request against the alarm panel"""
