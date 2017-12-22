@@ -2,6 +2,7 @@
 import argparse
 import logging
 import socketserver
+import sys
 import threading
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,21 +20,22 @@ class EgardiaServer(socketserver.TCPServer, threading.Thread):
         self.callbacks = []
         socketserver.TCPServer.__init__(
             self, self._address, EgardiaServerHandler, bind_and_activate=False)
-        self.allow_reuse_address = True
         self.status = ''
 
     def bind(self):
         """Bind and listen to address."""
         try:
+            self.allow_reuse_address = True
             self.server_bind()
             self.server_activate()
         except OSError:
             self.server_close()
-            _LOGGER.error(
+            _LOGGER.exception(
                 "Can't bind to address %s", self._address)
-            return
+            return False
 
         _LOGGER.info("Server listening on %s", self._address)
+        return True
 
     def register_callback(self, func):
         """Store callback in list.
@@ -95,7 +97,9 @@ def main():
     port = args.port
     host = 'localhost'
     server = EgardiaServer(host, port)
-    server.bind()
+    bound = server.bind()
+    if not bound:
+        sys.exit(2)
 
     def handle_event(event):
         """Handle event."""

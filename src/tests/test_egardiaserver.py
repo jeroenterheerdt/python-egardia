@@ -10,7 +10,7 @@ def connect(host, port, data):
     try:
         # Connect to server and send data
         sock.connect((host, port))
-        sock.sendall(bytes(data + "\n", "utf-8"))
+        sock.sendall(data.encode('utf-8'))
 
         # Receive data from the server and shut down
         received = sock.recv(1024)
