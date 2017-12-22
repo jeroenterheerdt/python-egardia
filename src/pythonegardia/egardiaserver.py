@@ -96,6 +96,12 @@ def main():
     host = 'localhost'
     server = EgardiaServer(host, port)
     server.bind()
+
+    def handle_event(event):
+        """Handle event."""
+        print('event: ', event)
+
+    server.register_callback(handle_event)
     server.start()
     # server.stop()
 
