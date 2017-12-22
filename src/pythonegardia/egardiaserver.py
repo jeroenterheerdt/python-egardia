@@ -103,8 +103,9 @@ def main():
 
     server.register_callback(handle_event)
     server.start()
-    # server.stop()
+    return server
 
 
 if __name__ == '__main__':
-    main()
+    SERVER = main()
+    # SERVER.stop()
