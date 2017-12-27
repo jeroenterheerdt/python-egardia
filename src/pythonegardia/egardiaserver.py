@@ -95,7 +95,7 @@ def main():
         help="The port number to run the server on (defaults to 52010)")
     args = parser.parse_args()
     port = args.port
-    host = 'localhost'
+    host = ''
     server = EgardiaServer(host, port)
     bound = server.bind()
     if not bound:
