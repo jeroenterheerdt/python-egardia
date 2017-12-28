@@ -6,7 +6,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad"]
-SUPPORTED_VERSIONS = ["GATE-01","GATE-02"]
+SUPPORTED_VERSIONS = ["GATE-01","GATE-02", "GATE-03"]
 
 class UnauthorizedError(Exception):
     """
@@ -62,11 +62,17 @@ class EgardiaDevice(object):
         except:
             raise
         statustext = req.text
+
         if 'Unauthorized' in statustext:
             raise UnauthorizedError('Unable to login to system using the credentials provided')
         else:
-            ind1 = statustext.find('mode_a1 : "')
-            statustext = statustext[ind1+11:]
+            if self._version in ["GATE-01", "GATE-02"]:
+                ind1 = statustext.find('mode_a1 : "')
+                numcharstoskip = 11
+            elif self._version == "GATE-03":
+                ind1 = statustext.find('"mode_a1": "')
+                numcharstoskip = 12
+            statustext = statustext[ind1+numcharstoskip:]
             ind2 = statustext.find('"')
             status = statustext[:ind2]
             _LOGGER.info("Egardia alarm status: "+status)
@@ -78,13 +84,14 @@ class EgardiaDevice(object):
         try:
             if self._version == "GATE-01":
                 req = self.dorequest('get', 'sensorListGet')
-            elif self._version == "GATE-02":
+            elif self._version in ["GATE-02", "GATE-03"]:
                 req = self.dorequest('get', 'deviceListGet')
             else:
                 raise VersionError('Egardia device version '+self._version+' is unsupported.')
         except:
             raise
         sensors = req.text
+       
         if 'Unauthorized' in sensors:
             raise UnauthorizedError('Unable to login to system using the credentials provided')
         elif 'is not defined' in sensors:
@@ -93,7 +100,7 @@ class EgardiaDevice(object):
             sensord = self.parseJson(sensors)
             sensors = {}
             keyname = "no"
-            if self._version == "GATE-02":
+            if self._version in ["GATE-02", "GATE-03"]:
                 keyname = "id"
             for sensor in sensord["senrows"]:
                 if sensor["type"] not in SENSOR_TYPES_TO_IGNORE:
