@@ -70,8 +70,8 @@ class EgardiaDevice(object):
                 ind1 = statustext.find('mode_a1 : "')
                 numcharstoskip = 11
             elif self._version == "GATE-03":
-                ind1 = statustext.find('"mode_a1": "')
-                numcharstoskip = 12
+                ind1 = statustext.find('"mode_a1" : "')
+                numcharstoskip = 13
             statustext = statustext[ind1+numcharstoskip:]
             ind2 = statustext.find('"')
             status = statustext[:ind2]
