@@ -141,18 +141,28 @@ class EgardiaDevice(object):
 
     def alarm_disarm(self, code=None):
         """Send disarm command."""
-        req = self.sendcondition(4)
+        if self._version in ["GATE-01", "GATE-02"]:
+            req = self.sendcondition(4)
+        elif self._version == "GATE-03":
+            req = self.sendcondition(0)
+        
         _LOGGER.info("Egardia alarm disarming, result: "+req)
 
     def alarm_arm_home(self, code=None):
         """Send arm home command."""
-        req = self.sendcondition(1)
+        if self._version in ["GATE-01", "GATE-02"]:
+            req = self.sendcondition(1)
+        elif self._version == "GATE-03":
+            req = self.sendcondition(2)
         _LOGGER.info("Egardia alarm arming home, result: "+req)
 
     def alarm_arm_away(self, code=None):
         """Send arm away command."""
         #ARM the alarm
-        req = self.sendcondition(0)
+        if self._version in ["GATE-01", "GATE-02"]:
+            req = self.sendcondition(0)
+        elif self._version == "GATE-03":
+            req = self.sendcondition(1)
         _LOGGER.info("Egardia alarm arming away, result: "+req)
 
     def sendcondition(self, mode):
