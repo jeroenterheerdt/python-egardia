@@ -53,44 +53,53 @@ class EgardiaDevice(object):
         """Update the alarm status."""
         self._status = self.getstate()
 
+    def dorequestwithretry(self, mode, service, maxretries=1):
+        """Do a request and retry."""
+        for i in range(maxretries):
+            try:
+                req = self.dorequest(mode, service)
+            except:
+                raise
+            statustext = req.text
+            i = i + 1
+            if 'Unauthorized' not in statustext:
+                break
+              
+        if 'Unauthorized' in statustext:
+            raise UnauthorizedError('Unable to login to system using the credentials provided')
+        else:
+            return statustext
+
     def getstate(self):
         """Get the status from the alarm panel"""
         import requests
         #Get status
-        try:
-            req = self.dorequest('get', 'panelCondGet')
-        except:
-            raise
-        statustext = req.text
+        statustext = self.dorequestwithretry('get','panelCondGet')
 
-        if 'Unauthorized' in statustext:
-            raise UnauthorizedError('Unable to login to system using the credentials provided')
-        else:
-            if self._version in ["GATE-01", "GATE-02"]:
-                ind1 = statustext.find('mode_a1 : "')
-                numcharstoskip = 11
-            elif self._version == "GATE-03":
-                ind1 = statustext.find('"mode_a1" : "')
-                numcharstoskip = 13
-            statustext = statustext[ind1+numcharstoskip:]
-            ind2 = statustext.find('"')
-            status = statustext[:ind2]
-            _LOGGER.info("Egardia alarm status: "+status)
-            return status.upper()
+        if self._version in ["GATE-01", "GATE-02"]:
+            ind1 = statustext.find('mode_a1 : "')
+            numcharstoskip = 11
+        elif self._version == "GATE-03":
+            ind1 = statustext.find('"mode_a1" : "')
+            numcharstoskip = 13
+        statustext = statustext[ind1+numcharstoskip:]
+        ind2 = statustext.find('"')
+        status = statustext[:ind2]
+        _LOGGER.info("Egardia alarm status: "+status)
+        return status.upper()
 
     def getsensors(self):
         """Get the sensors and their states from the alarm panel"""
         import requests
         try:
             if self._version == "GATE-01":
-                req = self.dorequest('get', 'sensorListGet')
+                sensors = self.dorequestwithretry('get', 'sensorListGet')
             elif self._version in ["GATE-02", "GATE-03"]:
-                req = self.dorequest('get', 'deviceListGet')
+                sensors = self.dorequestwithretry('get', 'deviceListGet')
             else:
                 raise VersionError('Egardia device version '+self._version+' is unsupported.')
         except:
             raise
-        sensors = req.text
        
         if 'Unauthorized' in sensors:
             raise UnauthorizedError('Unable to login to system using the credentials provided')
@@ -171,7 +180,7 @@ class EgardiaDevice(object):
         #Send payload to panelCondPost
         payload = {'area': '1', 'mode': mode}
         try:
-            req = self.dorequest('POST', 'panelCondPost', payload)
+            req = self.doRequestWithRetry('POST', 'panelCondPost', payload)
         except:
             raise
         statustext = req.text
