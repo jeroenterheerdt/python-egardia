@@ -7,6 +7,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad"]
 SUPPORTED_VERSIONS = ["GATE-01","GATE-02", "GATE-03"]
+UNAUTHORIZED_MESSAGES = ["Unauthorized", "Access Denied"]
 
 class UnauthorizedError(Exception):
     """
@@ -53,19 +54,26 @@ class EgardiaDevice(object):
         """Update the alarm status."""
         self._status = self.getstate()
 
+    def statusunauthorized(self, text):
+        """Check for unautorized messages in a given text."""
+        for msg in UNAUTHORIZED_MESSAGES:
+            if msg in text:
+                return True
+        return False
+
     def dorequestwithretry(self, mode, service, maxretries=1):
         """Do a request and retry."""
-        for i in range(maxretries):
+        for i in range(maxretries+1):
             try:
                 req = self.dorequest(mode, service)
             except:
                 raise
             statustext = req.text
             i = i + 1
-            if 'Unauthorized' not in statustext:
+            if not self.statusunauthorized(statustext):
                 break
               
-        if 'Unauthorized' in statustext:
+        if self.statusunauthorized(statustext):
             raise UnauthorizedError('Unable to login to system using the credentials provided')
         else:
             return statustext
@@ -101,7 +109,7 @@ class EgardiaDevice(object):
         except:
             raise
        
-        if 'Unauthorized' in sensors:
+        if self.statusunauthorized(sensors):
             raise UnauthorizedError('Unable to login to system using the credentials provided')
         elif 'is not defined' in sensors:
             raise VersionError('Unable to communicate with the device. Did you configure your version correctly?')
