@@ -5,9 +5,10 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad"]
+SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad", "Keypad"]
 SUPPORTED_VERSIONS = ["GATE-01","GATE-02", "GATE-03"]
 UNAUTHORIZED_MESSAGES = ["Unauthorized", "Access Denied"]
+GATE03_STATES_MAPPING = {'FULL ARM':'ARM','HOME ARM 1':'HOME','HOME ARM 2':'HOME','HOME ARM 3':'HOME','DISARM':'DISARM'}
 
 class UnauthorizedError(Exception):
     """
@@ -93,6 +94,9 @@ class EgardiaDevice(object):
         statustext = statustext[ind1+numcharstoskip:]
         ind2 = statustext.find('"')
         status = statustext[:ind2]
+        #Mapping GATE-03 states to supported values in HASS component
+        if self._version == "GATE-03":
+            status = GATE03_STATES_MAPPING.get(status, "UNKNOWN")
         _LOGGER.info("Egardia alarm status: "+status)
         return status.upper()
 
@@ -117,18 +121,24 @@ class EgardiaDevice(object):
             sensord = self.parseJson(sensors)
             sensors = {}
             keyname = "no"
+            typename = "type"
             if self._version in ["GATE-02", "GATE-03"]:
                 keyname = "id"
+            if self._version == "GATE-03":
+                typename = "type_f"
             for sensor in sensord["senrows"]:
-                if sensor["type"] not in SENSOR_TYPES_TO_IGNORE:
+                if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
+                    #Change type_f key to type for GATE-03.
+                    if self._version == "GATE-03":
+                        sensor["type"] = sensor.pop[typename]
                     sensors[sensor[keyname]] = sensor
                     #sensor[keyname]
-                    if sensor["type"] == "Door Contact":
+                    #if sensor["type"] == "Door Contact":
                         #sensor["cond"]== "Open" || ""
-                        k = 1
-                    if sensor["type"] == "IR Sensor":
+                    #    k = 1
+                    #if sensor["type"] == "IR Sensor":
                         #sensor[""]!= "" || ""
-                        k = 2
+                    #    k = 2
             return sensors
         
     def getsensor(self, sensorId):
