@@ -211,7 +211,7 @@ class EgardiaDevice(object):
         #Send payload to panelCondPost
         payload = {'area': '1', 'mode': mode}
         try:
-            req = self.doRequestWithRetry('POST', 'panelCondPost', payload)
+            req = self.dorequestwithretry('POST', 'panelCondPost', payload)
         except:
             raise
         statustext = req.text
