@@ -130,7 +130,13 @@ class EgardiaDevice(object):
                 #Process GATE-01 and GATE-02 sensor json
                 for sensor in sensord["senrows"]:
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
-                        sensors[sensor[keyname]] = sensor
+                        #Change keyname from no to id to match GATE-02 and GATE-03
+                        if self._version == "GATE-01":
+                            newkeyname = "id"
+                            sensor[newkeyname] = sensor.pop(keyname)
+                            sensors[sensor[newkeyname]] = sensor
+                        elif self._version == "GATE-02":
+                            sensors[sensor[keyname]] = sensor
                         #sensor[keyname]
                         #if sensor["type"] == "Door Contact":
                             #sensor["cond"]== "Open" || ""
