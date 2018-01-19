@@ -126,19 +126,26 @@ class EgardiaDevice(object):
                 keyname = "id"
             if self._version == "GATE-03":
                 typename = "type_f"
-            for sensor in sensord["senrows"]:
-                if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
-                    #Change type_f key to type for GATE-03.
-                    if self._version == "GATE-03":
-                        sensor["type"] = sensor.pop[typename]
-                    sensors[sensor[keyname]] = sensor
-                    #sensor[keyname]
-                    #if sensor["type"] == "Door Contact":
-                        #sensor["cond"]== "Open" || ""
-                    #    k = 1
-                    #if sensor["type"] == "IR Sensor":
-                        #sensor[""]!= "" || ""
-                    #    k = 2
+            if self._version in ["GATE-02", "GATE-01"]:
+                #Process GATE-01 and GATE-02 sensor json
+                for sensor in sensord["senrows"]:
+                    if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
+                        sensors[sensor[keyname]] = sensor
+                        #sensor[keyname]
+                        #if sensor["type"] == "Door Contact":
+                            #sensor["cond"]== "Open" || ""
+                        #    k = 1
+                        #if sensor["type"] == "IR Sensor":
+                            #sensor[""]!= "" || ""
+                        #    k = 2
+            elif self._version == "GATE-03":
+                #Process GATE-03 sensor json
+                for senname in sensord:
+                    sensor = sensord[senname]
+                    if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
+                        #Change type_f key to type for GATE-03.
+                        sensor["type"] = sensor.pop(typename)
+                        sensors[sensor[keyname]]=sensor
             return sensors
         
     def getsensor(self, sensorId):
