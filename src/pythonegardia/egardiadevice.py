@@ -147,7 +147,9 @@ class EgardiaDevice(object):
             elif self._version == "GATE-03":
                 #Process GATE-03 sensor json
                 for senname in sensord:
+                    print("type of sensord: ",type(sensord))
                     sensor = sensord[senname]
+                    print("type of sensor: ",type(sensor))
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
                         #Change type_f key to type for GATE-03.
                         sensor["type"] = sensor.pop(typename)
