@@ -148,14 +148,14 @@ class EgardiaDevice(object):
                 #Process GATE-03 sensor json
                 print("type of sensord: ",type(sensord))
                 print("sensord: ",sensord)
-                for senname in sensord:
-                    sensor = sensord[senname]
+                for sensor in sensord["senrows"]:
                     print("type of sensor: ",type(sensor))
                     print("sensor: ",sensor)
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
                         #Change type_f key to type for GATE-03.
                         sensor["type"] = sensor.pop(typename)
                         sensors[sensor[keyname]]=sensor
+            print("SENSORS: ",sensors)
             return sensors
         
     def getsensor(self, sensorId):
