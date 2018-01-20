@@ -62,11 +62,11 @@ class EgardiaDevice(object):
                 return True
         return False
 
-    def dorequestwithretry(self, mode, service, maxretries=1):
+    def dorequestwithretry(self, mode, service, maxretries=1, payload=None):
         """Do a request and retry."""
         for i in range(maxretries+1):
             try:
-                req = self.dorequest(mode, service)
+                req = self.dorequest(mode, service, payload)
             except:
                 raise
             statustext = req.text
@@ -213,10 +213,9 @@ class EgardiaDevice(object):
         #Send payload to panelCondPost
         payload = {'area': '1', 'mode': mode}
         try:
-            req = self.dorequestwithretry('POST', 'panelCondPost', payload)
+            statustext = self.dorequestwithretry('POST', 'panelCondPost', 1, payload)
         except:
             raise
-        statustext = req.text
         ind1 = statustext.find('result : ')
         statustext = statustext[ind1+9:]
         ind2 = statustext.find(',')
