@@ -5,7 +5,14 @@ import socketserver
 import sys
 import threading
 
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+console.setFormatter(formatter)
+
 _LOGGER = logging.getLogger(__name__)
+_LOGGER.addHandler(console)
+_LOGGER.setLevel(logging.DEBUG)
 
 DEFAULT_RESPONSE = "HTTP/1.1 200 OK\n\nHello, World!"
 
