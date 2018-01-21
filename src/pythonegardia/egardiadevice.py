@@ -160,6 +160,13 @@ class EgardiaDevice(object):
         else:
             return None
 
+    def getsensorstate(self, sensorId):
+        sensor = self.getsensor(sensorId)
+        if sensor is not None:
+            return sensor['cond']
+        else:
+            return None
+
     def dorequest(self, requesttype, action, payload=None):
         """Execute an request against the alarm panel"""
         import requests

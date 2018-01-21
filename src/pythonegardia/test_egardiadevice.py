@@ -45,6 +45,7 @@ def main():
     randomsensorID = random.choice(list(sensors.keys()))
     print("Selected random sensor: ",randomsensorID)
     print("getsensor(",randomsensorID,") output ",eg.getsensor(randomsensorID))
+    print("getsensorstate(",randomsensorID,") output ",eg.getsensorstate(randomsensorID))
     print("------------")
     print("IMPORTANT: continuing passed this point will arm and disarm your alarm!")
     armOK = input("Press y to ARM your alarm ")
