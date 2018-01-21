@@ -96,9 +96,7 @@ class EgardiaDevice(object):
         status = statustext[:ind2]
         #Mapping GATE-03 states to supported values in HASS component
         if self._version == "GATE-03":
-            print("Mapping!")
             status = GATE03_STATES_MAPPING.get(status.upper(), "UNKNOWN")
-            print("status: ",status)
         _LOGGER.info("Egardia alarm status: "+status)
         return status.upper()
 
