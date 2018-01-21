@@ -96,7 +96,9 @@ class EgardiaDevice(object):
         status = statustext[:ind2]
         #Mapping GATE-03 states to supported values in HASS component
         if self._version == "GATE-03":
-            status = GATE03_STATES_MAPPING.get(status, "UNKNOWN")
+            print("Mapping!")
+            status = GATE03_STATES_MAPPING.get(status.upper(), "UNKNOWN")
+            print("status: ",status)
         _LOGGER.info("Egardia alarm status: "+status)
         return status.upper()
 
@@ -146,16 +148,11 @@ class EgardiaDevice(object):
                         #    k = 2
             elif self._version == "GATE-03":
                 #Process GATE-03 sensor json
-                print("type of sensord: ",type(sensord))
-                print("sensord: ",sensord)
                 for sensor in sensord["senrows"]:
-                    print("type of sensor: ",type(sensor))
-                    print("sensor: ",sensor)
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
                         #Change type_f key to type for GATE-03.
                         sensor["type"] = sensor.pop(typename)
                         sensors[sensor[keyname]]=sensor
-            print("SENSORS: ",sensors)
             return sensors
         
     def getsensor(self, sensorId):
