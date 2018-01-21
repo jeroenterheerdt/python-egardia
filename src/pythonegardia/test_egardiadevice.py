@@ -3,6 +3,7 @@
 import time
 import sys
 import argparse
+import random
 import egardiadevice as e
 
 if sys.version_info<(3,0,0):
@@ -35,8 +36,15 @@ def main():
     password = args.password
     version = args.version
     eg = e.EgardiaDevice(host, port, username, password, "", version)
+    print("Getting STATE")
     print("getstate output ",eg.getstate())
-    print("getsensors output ",eg.getsensors())
+    print("------------")
+    sensors = eg.getsensors()
+    print("Getting SENSORS")
+    print("getsensors output ",sensors)
+    randomsensorID = random.choice(list(sensors.keys()))
+    print("Selected random sensor: ",randomsensorID)
+    print("getsensor(",randomsensorID,") output ",eg.getsensor(randomsensorID))
     print("------------")
     print("IMPORTANT: continuing passed this point will arm and disarm your alarm!")
     armOK = input("Press y to ARM your alarm ")

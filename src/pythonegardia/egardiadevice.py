@@ -154,6 +154,7 @@ class EgardiaDevice(object):
             return sensors
         
     def getsensor(self, sensorId):
+        self._sensors = self.getsensors()
         if sensorId in self._sensors:
             return self._sensors[sensorId]
         else:
