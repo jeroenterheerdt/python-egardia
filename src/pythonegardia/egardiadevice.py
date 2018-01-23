@@ -163,7 +163,20 @@ class EgardiaDevice(object):
     def getsensorstate(self, sensorId):
         sensor = self.getsensor(sensorId)
         if sensor is not None:
-            return sensor['cond']
+            if self._version in ["GATE-01", "GATE-02"]:
+                if len(sensor['cond']) > 0:
+                    # Return True when door is open or IR is triggered
+                    return True
+                else:
+                    # Return False when door is closed or IR is not triggered
+                    return False
+            elif self._version == "GATE-03":
+                if sensor['status'].upper() == "DOOR OPEN":
+                    # Return True when door is open or IR is triggered (todo)
+                    return True
+                elif sensor['status'].upper() == "DOOR CLOSE":
+                    # Return False when door is closed or IR is not triggered (todo)
+                    return False
         else:
             return None
 
