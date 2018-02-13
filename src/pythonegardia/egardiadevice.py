@@ -6,7 +6,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad", "Keypad"]
-SUPPORTED_VERSIONS = ["GATE-01","GATE-02", "GATE-03"]
+SUPPORTED_VERSIONS = ["WV-1716", "GATE-01","GATE-02", "GATE-03"]
 UNAUTHORIZED_MESSAGES = ["Unauthorized", "Access Denied"]
 GATE03_STATES_MAPPING = {'FULL ARM':'ARM','HOME ARM 1':'HOME','HOME ARM 2':'HOME','HOME ARM 3':'HOME','DISARM':'DISARM'}
 
@@ -91,6 +91,9 @@ class EgardiaDevice(object):
         elif self._version == "GATE-03":
             ind1 = statustext.find('"mode_a1" : "')
             numcharstoskip = 13
+        elif self._version == "WV-1716":
+            ind1 = statustext.find('mode_st : "')
+            numcharstoskip = 11
         statustext = statustext[ind1+numcharstoskip:]
         ind2 = statustext.find('"')
         status = statustext[:ind2]
@@ -104,7 +107,7 @@ class EgardiaDevice(object):
         """Get the sensors and their states from the alarm panel"""
         import requests
         try:
-            if self._version == "GATE-01":
+            if self._version in ["WV-1716", "GATE-01"]:
                 sensors = self.dorequestwithretry('get', 'sensorListGet')
             elif self._version in ["GATE-02", "GATE-03"]:
                 sensors = self.dorequestwithretry('get', 'deviceListGet')
@@ -126,12 +129,12 @@ class EgardiaDevice(object):
                 keyname = "id"
             if self._version == "GATE-03":
                 typename = "type_f"
-            if self._version in ["GATE-02", "GATE-01"]:
+            if self._version in ["WV-1716", "GATE-02", "GATE-01"]:
                 #Process GATE-01 and GATE-02 sensor json
                 for sensor in sensord["senrows"]:
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
                         #Change keyname from no to id to match GATE-02 and GATE-03
-                        if self._version == "GATE-01":
+                        if self._version in ["WV-1716", "GATE-01"]:
                             newkeyname = "id"
                             sensor[newkeyname] = sensor.pop(keyname)
                             sensors[sensor[newkeyname]] = sensor
@@ -163,7 +166,7 @@ class EgardiaDevice(object):
     def getsensorstate(self, sensorId):
         sensor = self.getsensor(sensorId)
         if sensor is not None:
-            if self._version in ["GATE-01", "GATE-02"]:
+            if self._version in ["WV-1716", "GATE-01", "GATE-02"]:
                 if len(sensor['cond']) > 0:
                     # Return True when door is open or IR is triggered
                     return True
@@ -205,12 +208,14 @@ class EgardiaDevice(object):
             req = self.sendcondition(4)
         elif self._version == "GATE-03":
             req = self.sendcondition(0)
+        elif self._version == "WV-1716":
+            req = self.sendcondition(2)
         
         _LOGGER.info("Egardia alarm disarming, result: "+req)
 
     def alarm_arm_home(self, code=None):
         """Send arm home command."""
-        if self._version in ["GATE-01", "GATE-02"]:
+        if self._version in ["WV-1716", "GATE-01", "GATE-02"]:
             req = self.sendcondition(1)
         elif self._version == "GATE-03":
             req = self.sendcondition(2)
@@ -219,7 +224,7 @@ class EgardiaDevice(object):
     def alarm_arm_away(self, code=None):
         """Send arm away command."""
         #ARM the alarm
-        if self._version in ["GATE-01", "GATE-02"]:
+        if self._version in ["WV-1716", "GATE-01", "GATE-02"]:
             req = self.sendcondition(0)
         elif self._version == "GATE-03":
             req = self.sendcondition(1)
