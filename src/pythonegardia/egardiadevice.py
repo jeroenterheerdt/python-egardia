@@ -174,11 +174,10 @@ class EgardiaDevice(object):
                     # Return False when door is closed or IR is not triggered
                     return False
             elif self._version == "GATE-03":
-                if sensor['status'].upper() == "DOOR OPEN" or len(sensor['status'])>0:
-                    # Return True when door is open or IR is triggered (todo)
+                if sensor['status'].upper() == "DOOR OPEN":
+                    # Return True when door is open
                     return True
-                elif sensor['status'].upper() == "DOOR CLOSE" or len(sensor['status'])<=0:
-                    # Return False when door is closed or IR is not triggered (todo)
+                elif sensor['status'].upper() == "DOOR CLOSE":
                     return False
         else:
             return None
