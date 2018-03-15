@@ -5,7 +5,10 @@ Egardiadevice is the representation of the alarm control panel and the Egardiase
 
 ## EgardiaDevice ##
 This script talks to the Egardia alarm control panel and can read and set it's status. Note that if the alarm is triggered the state is not published through the interface available to this script. To be able to respond to alarm triggers, set up the Egardia Server (see below). For testing purposes have a look at the `test_egardiadevice.py` script. It's usage:
-`test_egardiadevice.py [-h] host port username password version`, so for example:
+```bash
+test_egardiadevice.py [-h] host port username password version
+```
+For example:
 `python test_egardiadevice.py 192.168.1.X 80 user pass GATE-02`.
 
 ## EgardiaServer ##
