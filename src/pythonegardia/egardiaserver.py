@@ -100,9 +100,11 @@ def main():
     parser.add_argument(
         '-P', '--port', default='52010', type=int,
         help="The port number to run the server on (defaults to 52010)")
+    parser.add_argument(
+        '--host', default='', help="The host to run the server on (defaults to '', which is localhost). Specify this the IP address of your machine if you are having issues receiving messages.")
     args = parser.parse_args()
     port = args.port
-    host = ''
+    host = args.host
     server = EgardiaServer(host, port)
     bound = server.bind()
     if not bound:

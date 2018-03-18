@@ -22,6 +22,7 @@ Run the EgardiaServer
 optional arguments:
   -h, --help            show this help message and exit
   -P PORT, --port PORT  the port number to run the server on (defaults to 52010)
+  --host HOST           The host to run the server on (defaults to '', which is localhost). Specify this the IP address of your machine if you are having issues receiving messages.
 ```
 
 The test script for the EgardiaServer is `test_egardiaserver.py` which tests if the `egardiaserver` you are running is accessible.
