@@ -1,10 +1,13 @@
 # python-egardia
 Python library to interface with Egardia / Woonveilig alarm. Tested with **WV-1716**, **GATE-01**, **GATE-02** and **GATE-03** version of Egardia / Woonveilig. Other versions might work, but unsure. Originally written for integration with [Home Assistant](home-assistant.io) it can also by used to integrate with these alarms in other solutions.
 
+## Note on GATE-02 ##
+There seem to be multiple versions of software running on GATE-02 devices; we have received reports from GATE-02 users who succesfully run this package in GATE-02 mode. Others have reported they needed to specify GATE-03 as their version to integrate their GATE-02.
+
 Egardiadevice is the representation of the alarm control panel and the Egardiaserver can be used to handle alarm status changes including triggering. Test files are included for both device and server. 
 
 ## EgardiaDevice ##
-This script talks to the Egardia alarm control panel and can read and set it's status. Note that if the alarm is triggered the state is not published through the interface available to this script. To be able to respond to alarm triggers, set up the Egardia Server (see below). For testing purposes have a look at the `test_egardiadevice.py` script. It's usage:
+This script talks to the Egardia alarm control panel and can read and set its status. Note that if the alarm is triggered the state is not published through the interface available to this script. To be able to respond to alarm triggers, set up the Egardia Server (see below). For testing purposes have a look at the `test_egardiadevice.py` script. It's usage:
 ```bash
 test_egardiadevice.py [-h] host port username password version
 ```
