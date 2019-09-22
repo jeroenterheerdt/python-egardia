@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 _LOGGER.addHandler(console)
 _LOGGER.setLevel(logging.DEBUG)
 
-DEFAULT_RESPONSE = "HTTP/1.1 200 OK\n\nHello, World!"
+DEFAULT_RESPONSE = '\u0006'
 
 
 class EgardiaServer(socketserver.TCPServer, threading.Thread):
