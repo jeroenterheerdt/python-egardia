@@ -3,7 +3,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='pythonegardia',
-      version='1.0.50',
+      version='1.0.51',
       description='Python 3 support for Egardia / Woonveilig alarm',
       long_description=long_description,
       long_description_content_type="text/markdown",
