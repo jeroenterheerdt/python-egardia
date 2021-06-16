@@ -1,5 +1,5 @@
 # python-egardia
-Python library to interface with Egardia / Woonveilig alarm. Tested with **WV-1716**, **GATE-01**, **GATE-02** and **GATE-03** version of Egardia / Woonveilig. Other versions might work, but unsure. Originally written for integration with [Home Assistant](home-assistant.io) it can also by used to integrate with these alarms in other solutions.
+Python library to interface with Egardia / Woonveilig alarm. Tested with **WV-1716**, **GATE-01**, **GATE-02** and **GATE-03** version of Egardia / Woonveilig. Other versions might work, but unsure. Originally written for integration with [Home Assistant](https://home-assistant.io/) it can also by used to integrate with these alarms in other solutions.
 
 **Note on GATE-02**
 There seem to be multiple versions of software running on GATE-02 devices; we have received reports from GATE-02 users who successfully run this package in GATE-02 mode. Others have reported they needed to specify GATE-03 as their version to integrate their GATE-02.
