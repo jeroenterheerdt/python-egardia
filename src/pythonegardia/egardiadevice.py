@@ -6,7 +6,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES_TO_IGNORE = ["Remote Controller", "Remote Keypad", "Keypad"]
-SUPPORTED_VERSIONS = ["WV-1716", "GATE-01","GATE-02", "GATE-03"]
+SUPPORTED_VERSIONS = ["WV-1716", "GATE-01","GATE-02", "GATE-03", "GATE-04"]
 UNAUTHORIZED_MESSAGES = ["Unauthorized", "Access Denied"]
 GATE03_STATES_MAPPING = {'FULL ARM':'ARM','HOME ARM 1':'HOME','HOME ARM 2':'HOME','HOME ARM 3':'HOME','DISARM':'DISARM'}
 
@@ -129,7 +129,7 @@ class EgardiaDevice(object):
                 keyname = "id"
             if self._version == "GATE-03":
                 typename = "type_f"
-            if self._version in ["WV-1716", "GATE-02", "GATE-01"]:
+            if self._version in ["WV-1716", "GATE-02", "GATE-01", "GATE-04"]:
                 #Process GATE-01 and GATE-02 sensor json
                 for sensor in sensord["senrows"]:
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
@@ -138,7 +138,7 @@ class EgardiaDevice(object):
                             newkeyname = "id"
                             sensor[newkeyname] = sensor.pop(keyname)
                             sensors[sensor[newkeyname]] = sensor
-                        elif self._version == "GATE-02":
+                        elif self._version in ["GATE-02", "GATE-04"]:
                             sensors[sensor[keyname]] = sensor
                         #sensor[keyname]
                         #if sensor["type"] == "Door Contact":
@@ -173,11 +173,11 @@ class EgardiaDevice(object):
                 else:
                     # Return False when door is closed or IR is not triggered
                     return False
-            elif self._version == "GATE-03":
-                if sensor['status'].upper() == "DOOR OPEN":
+            elif self._version in ["GATE-03", "GATE-04"]:
+                if sensor['status'].upper() in ["DOOR OPEN", "LÅS OP"]:
                     # Return True when door is open
                     return True
-                elif sensor['status'].upper() == "DOOR CLOSE":
+                elif sensor['status'].upper()  in ["DOOR CLOSE", "LÅS"]:
                     return False
         else:
             return None
@@ -205,7 +205,7 @@ class EgardiaDevice(object):
         """Send disarm command."""
         if self._version in ["GATE-01", "GATE-02"]:
             req = self.sendcondition(4)
-        elif self._version == "GATE-03":
+        elif self._version in ["GATE-03", "GATE-04"]:
             req = self.sendcondition(0)
         elif self._version == "WV-1716":
             req = self.sendcondition(2)
@@ -216,7 +216,7 @@ class EgardiaDevice(object):
         """Send arm home command."""
         if self._version in ["WV-1716", "GATE-01", "GATE-02"]:
             req = self.sendcondition(1)
-        elif self._version == "GATE-03":
+        elif self._version in ["GATE-03", "GATE-04"]:
             req = self.sendcondition(2)
         _LOGGER.info("Egardia alarm arming home, result: "+req)
 
@@ -225,7 +225,7 @@ class EgardiaDevice(object):
         #ARM the alarm
         if self._version in ["WV-1716", "GATE-01", "GATE-02"]:
             req = self.sendcondition(0)
-        elif self._version == "GATE-03":
+        elif self._version in ["GATE-03", "GATE-04"]:
             req = self.sendcondition(1)
         _LOGGER.info("Egardia alarm arming away, result: "+req)
 
