@@ -109,7 +109,7 @@ class EgardiaDevice(object):
         try:
             if self._version in ["WV-1716", "GATE-01"]:
                 sensors = self.dorequestwithretry('get', 'sensorListGet')
-            elif self._version in ["GATE-02", "GATE-03"]:
+            elif self._version in ["GATE-02", "GATE-03", "GATE-04"]:
                 sensors = self.dorequestwithretry('get', 'deviceListGet')
             else:
                 raise VersionError('Egardia device version '+self._version+' is unsupported.')
