@@ -88,7 +88,7 @@ class EgardiaDevice(object):
         if self._version in ["GATE-01", "GATE-02"]:
             ind1 = statustext.find('mode_a1 : "')
             numcharstoskip = 11
-        elif self._version == "GATE-03":
+        elif self._version in ["GATE-03", "GATE-04"]:
             ind1 = statustext.find('"mode_a1" : "')
             numcharstoskip = 13
         elif self._version == "WV-1716":
@@ -125,11 +125,11 @@ class EgardiaDevice(object):
             sensors = {}
             keyname = "no"
             typename = "type"
-            if self._version in ["GATE-02", "GATE-03"]:
+            if self._version in ["GATE-02", "GATE-03", "GATE-04"]:
                 keyname = "id"
             if self._version == "GATE-03":
                 typename = "type_f"
-            if self._version in ["WV-1716", "GATE-02", "GATE-01", "GATE-04"]:
+            if self._version in ["WV-1716", "GATE-02", "GATE-01"]:
                 #Process GATE-01 and GATE-02 sensor json
                 for sensor in sensord["senrows"]:
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
@@ -138,7 +138,7 @@ class EgardiaDevice(object):
                             newkeyname = "id"
                             sensor[newkeyname] = sensor.pop(keyname)
                             sensors[sensor[newkeyname]] = sensor
-                        elif self._version in ["GATE-02", "GATE-04"]:
+                        elif self._version in ["GATE-02"]:
                             sensors[sensor[keyname]] = sensor
                         #sensor[keyname]
                         #if sensor["type"] == "Door Contact":
@@ -147,7 +147,7 @@ class EgardiaDevice(object):
                         #if sensor["type"] == "IR Sensor":
                             #sensor[""]!= "" || ""
                         #    k = 2
-            elif self._version == "GATE-03":
+            elif self._version in ["GATE-03", "GATE-04"]:
                 #Process GATE-03 sensor json
                 for sensor in sensord["senrows"]:
                     if sensor[typename] not in SENSOR_TYPES_TO_IGNORE:
